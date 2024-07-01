@@ -34,7 +34,7 @@ export class EventsBridge
         if (change.operationType === 'insert') {
           this.handleEventStoreChange(change);
         }
-      }) as unknown as ChangeStream; // had to cast it to unknown in order to bypass the weird type check of compatibility even though it is compatible
+      }) as unknown as ChangeStream;
   }
 
   onApplicationShutdown() {
