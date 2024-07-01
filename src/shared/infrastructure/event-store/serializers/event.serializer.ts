@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { VersionedAggregateRoot } from 'src/shared/domain/aggregate-root';
 import { SerializableEvent } from 'src/shared/domain/interfaces/serializable-event';
+import { EventClsRegistry } from '../event-cls.registry';
 
 @Injectable()
 export class EventSerializer {
@@ -22,6 +23,11 @@ export class EventSerializer {
       data: this.toJSON(event),
     };
   }
+
+  getEventClassByType(type: string) {
+    return EventClsRegistry.get(type);
+  }
+
   private toJSON<T>(data: T) {
     if (typeof data !== 'object' || data === null) {
       return data;
