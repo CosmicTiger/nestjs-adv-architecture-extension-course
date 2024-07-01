@@ -1,9 +1,7 @@
-import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateAlarmCommand } from './create-alarm.command';
 import { Logger } from '@nestjs/common';
-import { CreateAlarmRepository } from '../ports/create-alarm.repository';
 import { AlarmFactory } from 'src/alarms/domain/factories/alarm.factory';
-import { AlarmCreatedEvent } from 'src/alarms/domain/events/alarm-created.event';
 
 @CommandHandler(CreateAlarmCommand)
 export class CreateAlarmCommandHandler
@@ -12,9 +10,8 @@ export class CreateAlarmCommandHandler
   private readonly logger = new Logger(CreateAlarmCommandHandler.name);
 
   constructor(
-    private readonly createalarmRepository: CreateAlarmRepository,
+    private readonly eventPublisher: EventPublisher,
     private readonly alarmFactory: AlarmFactory,
-    private readonly eventBus: EventBus,
   ) {}
 
   async execute(command: CreateAlarmCommand) {
@@ -27,15 +24,18 @@ export class CreateAlarmCommandHandler
       command.triggeredAt,
       command.items,
     );
-    const newAlarm = await this.createalarmRepository.save(alarm);
+    // const newAlarm = await this.createalarmRepository.save(alarm);
 
-    /**
-     * @description Publish the AlarmCreatedEvent
-     * This is not yet the best way to dispatch events. Domain events should be dispatched from the aggregate root,
-     * inside the domain layer. This is just a simple example to show how to dispatch events using the event bus.
-     */
-    this.eventBus.publish(new AlarmCreatedEvent(newAlarm));
+    // /**
+    //  * @description Publish the AlarmCreatedEvent
+    //  * This is not yet the best way to dispatch events. Domain events should be dispatched from the aggregate root,
+    //  * inside the domain layer. This is just a simple example to show how to dispatch events using the event bus.
+    //  */
+    // this.eventBus.publish(new AlarmCreatedEvent(newAlarm));
 
-    return newAlarm;
+    this.eventPublisher.mergeObjectContext(alarm);
+    alarm.commit();
+
+    return alarm;
   }
 }
