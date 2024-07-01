@@ -5,9 +5,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ApplicationBootstrapOptions } from './common/interfaces/application-bootstrap-options.interface';
 import { CoreModule } from './core/core.module';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
-  imports: [CoreModule],
+  imports: [CqrsModule.forRoot(), CoreModule],
   controllers: [AppController],
   providers: [AppService],
 })
